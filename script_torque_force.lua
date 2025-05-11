@@ -1,18 +1,20 @@
 -- Скрипт для первой табилицы. Необходимо в директории со скриптом создать файл "DRIGATEL_test.fem",
 -- который будет соответствовать положению d, из которого двигатель начнет движение против часовой стрелки.
 -- Если надо в другую сторону крутить - у geom_step в определении поставить "-"
+-- скрипт момента от угла поворота
 
 -- Результатом будет "test_table.csv", который окажется в той же директории 
 
 -- ПАРАМЕТРЫ:
 -- Вписать свой угол dq (геометрических градусов)
+
 dq_angle = 15
 
 showconsole()
 clearconsole()
 
 femm_dir = "./"
-open(femm_dir .. "DRIGATEL_test.fem")
+open(femm_dir .. "rotate_work_posD.fem")
 mi_saveas(femm_dir .. "temp.fem")
 mi_seteditmode("group")
 
@@ -24,6 +26,7 @@ steps = 30
 geom_step = dq_angle / steps
 electric_step = 180 / steps
 current_angle = 0
+
 
 for n = 0, steps do
     print("--------------------")
@@ -55,7 +58,7 @@ for n = 0, steps do
 
     mo_close()
 
-    mi_selectgroup(1)
+    mi_selectgroup(6)
     mi_moverotate(0, 0, geom_step)
     current_angle = current_angle + electric_step
 end
