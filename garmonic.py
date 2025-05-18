@@ -108,9 +108,10 @@ def amplitude_spectr():
 
 def garmonic_session(): # график номер 3
     yf_truncated = np.copy(yf)
-    yf_truncated[16:N-15] = 0
+    # Сохраняем 15 положительных и 15 отрицательных частот
+    yf_truncated[15+1:N-15] = 0  # обнуляем все, кроме первых 15 и последних 15
 
-    y_reconstructed = ifft(yf_truncated)
+    y_reconstructed = ifft(yf_truncated, norm="ortho")
 
     plt.figure(figsize=(12, 6))
     plt.plot(x, y,'o', label="Оригинальный сигнал", color="blue")
@@ -171,4 +172,7 @@ def garmo_multi_plotter():
     plt.tight_layout()  # Предотвращает перекрытия subplot'ов
     plt.show()
 
+phase_shift()
+amplitude_view()
+garmonic_session()
 garmo_multi_plotter()
