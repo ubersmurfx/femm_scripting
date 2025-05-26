@@ -38,9 +38,7 @@ data_string = """
 180	0,011142167
 """
 
-# Используем io.StringIO для обработки строки как файла
 data = io.StringIO(data_string)
-
 # Читаем данные и разделяем их
 x_values = []
 y_values = []
@@ -65,7 +63,6 @@ y = np.array(y_values)
 N = len(y)
 yf = fft(y, norm="ortho")
 xf = fftfreq(N, d=(x[1]-x[0]))  # Частоты
-
 
 def phase_shift(): #график номер 1
     phases = np.angle(yf[1:6])
@@ -157,8 +154,9 @@ def garmo_multi_plotter():
 
     for i in range(1, 6):
         yf_single_harmonic = np.zeros_like(yf, dtype=complex)
-        yf_single_harmonic[i] = np.abs(yf[i])
-        yf_single_harmonic[N-i] = np.abs(yf[N-i])
+        # Зануляем фазу и оставляем мнимую часть (синус), инвертируем для положительной области
+        yf_single_harmonic[i] = -1j * np.abs(yf[i])  # Представляем как мнимое число, инвертируем
+        yf_single_harmonic[N-i] = 1j * np.abs(yf[i]) # Комплексное сопряжение для отриц. частот, инвертируем
 
         y_single_harmonic = ifft(yf_single_harmonic)
 
@@ -166,13 +164,51 @@ def garmo_multi_plotter():
         ax.plot(x, np.real(y_single_harmonic))
         ax.set_xlabel("X")
         ax.set_ylabel("Y")
-        ax.set_title(f"Гармоника {i} ( фаза занулена )")
+        ax.set_title(f"Гармоника {i} (Фаза занулена)")
         ax.grid(True)
 
     plt.tight_layout()  # Предотвращает перекрытия subplot'ов
     plt.show()
-
-phase_shift()
-amplitude_view()
-garmonic_session()
+#phase_shift()
+#amplitude_view()
+#garmonic_session()
 garmo_multi_plotter()
+
+def calculate_modified_harmonic_coefficient(signal, sampling_rate, fundamental_frequency, num_harmonics=15):
+    N = len(signal)
+    yf = fft(signal)
+
+    def find_frequency_index(frequency):
+        return np.argmin(np.abs(np.fft.fftfreq(N, 1/sampling_rate) - frequency))
+
+    # Индекс для 3-й гармоники
+    harmonic_3rd_frequency = 3 * fundamental_frequency
+    harmonic_3rd_index = find_frequency_index(harmonic_3rd_frequency)
+
+    #  амплитуда 3-й гармоники
+    harmonic_3rd_amplitude = 2 * np.abs(yf[harmonic_3rd_index]) / N
+
+    # Вычисляем корень из суммы квадратов амплитуд первых num_harmonics гармоник
+    sum_of_squares = 0.0
+    for i in range(1, num_harmonics + 1):
+        harmonic_frequency = i * fundamental_frequency
+        harmonic_index = find_frequency_index(harmonic_frequency)
+        harmonic_amplitude = 2 * np.abs(yf[harmonic_index]) / N
+        sum_of_squares += harmonic_amplitude ** 2
+
+    root_sum_of_squares = np.sqrt(sum_of_squares)
+
+    #Проверяем, что знаменатель не равен 0
+    if root_sum_of_squares == 0:
+        print("error.")
+        return None
+
+    # Вычисляем нормированный коэффициент
+    coefficient = harmonic_3rd_amplitude / root_sum_of_squares
+
+    return coefficient
+
+coefficient = calculate_modified_harmonic_coefficient(y, 5, 15, num_harmonics=15)
+
+if coefficient is not None:
+    print(f" коэффициент 3-й гармоники: {coefficient}")
