@@ -113,21 +113,12 @@ def garmonic_session(): # график номер 3
     plt.figure(figsize=(12, 6))
     plt.plot(x, y,'o', label="Оригинальный сигнал", color="blue")
     plt.plot(x, np.real(y_reconstructed), label="Восстановленный сигнал ( 15 гармоник )", color="orange")  # Take real part
-    plt.xlabel("X")
-    plt.ylabel("Y")
+    plt.xlabel("Угол поворота, град.")
+    plt.ylabel("Момент, Нм")
     plt.title("График разложение сигнала")
     plt.legend()
     plt.grid(True)
-    plt.show()
-
-    # Дополнительно:  график остаточной ошибки
-    plt.figure(figsize=(12, 6))
-    plt.plot(x, y - np.real(y_reconstructed), label="Ошибка")
-    plt.xlabel("X")
-    plt.ylabel("Ошибка")
-    plt.title("Ошибка разложения")
-    plt.legend()
-    plt.grid(True)
+    plt.xticks(np.arange(min(x), max(x)+1, 30))
     plt.show()
 
 def garmo_single_plotter():
@@ -171,8 +162,8 @@ def garmo_multi_plotter():
     plt.show()
 #phase_shift()
 #amplitude_view()
-#garmonic_session()
-garmo_multi_plotter()
+garmonic_session()
+#garmo_multi_plotter()
 
 def calculate_modified_harmonic_coefficient(signal, sampling_rate, fundamental_frequency, num_harmonics=15):
     N = len(signal)
